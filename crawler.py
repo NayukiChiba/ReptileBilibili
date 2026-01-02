@@ -103,7 +103,7 @@ class BiliCrawler:
 
         # 生成签名
         query = urllib.parse.urlencode(params)
-        wbi_sign = hashlib.md5((query + mixin_key).encode().hexdigest())
+        wbi_sign = hashlib.md5((query + mixin_key).encode()).hexdigest()
         params['w_rid'] = wbi_sign
 
         return params
@@ -118,7 +118,7 @@ class BiliCrawler:
         :return: json请求数据
         '''
 
-        if params is not None:
+        if params is None:
             params = {}
         signed_params = self._encode_wbi(params=params)
         return self._request(url, params=signed_params, **kwargs)

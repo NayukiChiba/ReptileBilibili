@@ -31,12 +31,41 @@ class BiliAPI:
     QR_POLL = 'https://passport.bilibili.com/x/passport-login/web/qrcode/poll'  # 轮询登录状态
     NAV_INFO = 'https://api.bilibili.com/x/web-interface/nav'  # 获取用户导航信息
     
-    # 数据相关
+    # 用户信息相关
+    USER_INFO = 'https://api.bilibili.com/x/space/wbi/acc/info'  # 用户空间详细信息
+    USER_STAT = 'https://api.bilibili.com/x/relation/stat'  # 用户关系状态统计
+    USER_UPSTAT = 'https://api.bilibili.com/x/space/upstat'  # UP主状态(播放/阅读)
+    
+    # 历史记录相关
     HISTORY = 'https://api.bilibili.com/x/web-interface/history/cursor'  # 观看历史
+    
+    # 关注相关
     FOLLOW = 'https://api.bilibili.com/x/relation/followings'  # 关注列表
+    
+    # 收藏夹相关
     FAVORITE_LIST = 'https://api.bilibili.com/x/v3/fav/folder/created/list-all'  # 收藏夹列表
     FAVORITE_RESOURCE = 'https://api.bilibili.com/x/v3/fav/resource/list'  # 收藏夹内容
+    
+    # UP主视频相关
     SPACE_VIDEO = 'https://api.bilibili.com/x/space/wbi/arc/search'  # UP主视频列表
+    
+    # 视频信息相关
+    VIDEO_INFO = 'https://api.bilibili.com/x/web-interface/view'  # 视频详情
+    VIDEO_DETAIL = 'https://api.bilibili.com/x/web-interface/view/detail'  # 视频详情(含推荐/Tag等)
+    VIDEO_TAGS = 'https://api.bilibili.com/x/tag/archive/tags'  # 视频标签
+    VIDEO_DESC = 'https://api.bilibili.com/x/web-interface/archive/desc'  # 视频简介
+    
+    # 评论相关
+    REPLY_MAIN = 'https://api.bilibili.com/x/v2/reply/main'  # 评论列表
+    REPLY_REPLY = 'https://api.bilibili.com/x/v2/reply/reply'  # 评论回复
+    
+    # 番剧订阅相关
+    BANGUMI_LIST = 'https://api.bilibili.com/x/space/bangumi/follow/list'  # 追番列表
+    
+    # 点赞/投币记录相关
+    LIKE_VIDEO = 'https://api.bilibili.com/x/space/like/video'  # 点赞视频列表(仅最近)
+    COIN_VIDEO = 'https://member.bilibili.com/x/web/coin/video'  # 投币视频列表
+
 
 # 获取COOKIES
 def load_cookies():
