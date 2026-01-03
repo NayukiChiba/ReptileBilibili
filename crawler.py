@@ -51,6 +51,10 @@ class BiliCrawler:
         except requests.RequestException as e:
             print(f"请求失败: {e}")
             return {'code': -1, 'message': str(e)}
+        except ValueError as e:
+            # JSON 解析失败（空响应或非 JSON 内容）
+            print(f"请求失败: {e}")
+            return {'code': -1, 'message': f'JSON解析失败: {e}'}
         
     def _get_mixin_key(self, orig: str) -> str:
         '''
@@ -169,6 +173,15 @@ class BiliCrawler:
                     
                 response.raise_for_status()
                 return response.json()
+            
+            except ValueError as e:
+                # JSON 解析失败（空响应或非 JSON 内容）
+                if attempt < retry_count - 1:
+                    print(f"JSON解析失败, 重试中 ({attempt + 1}/{retry_count})...")
+                    time.sleep(1)
+                else:
+                    print(f"获取评论失败(JSON解析): {e}")
+                    return {'code': -1, 'message': f'JSON解析失败: {e}'}
                 
             except requests.RequestException as e:
                 if attempt < retry_count - 1:
