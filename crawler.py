@@ -8,7 +8,7 @@ import hashlib
 import urllib.parse
 from functools import reduce
 
-from config import HEADERS, load_cookies, BiliAPI
+from config import HEADERS, REPLY_HEADERS, load_cookies, BiliAPI
 
 
 class BiliCrawler:
@@ -123,6 +123,64 @@ class BiliCrawler:
         signed_params = self._encode_wbi(params=params)
         return self._request(url, params=signed_params, **kwargs)
     
+    
+    def _request_reply(self, url: str, params: dict = None, bvid: str = None, 
+                       retry_count: int = 3, **kwargs) -> dict:
+        """
+        发送评论相关请求（带重试和特殊处理）
+        评论API对反爬更敏感，需要特殊处理
+        Args:
+            url: 请求URL
+            params: 请求参数  
+            bvid: 视频BV号（用于设置Referer）
+            retry_count: 重试次数
+        Returns:
+            dict: JSON响应数据
+        """
+        import random
+        
+        # 设置评论专用的 Referer
+        headers = {}
+        if bvid:
+            headers['Referer'] = f'https://www.bilibili.com/video/{bvid}/'
+        else:
+            headers.update(REPLY_HEADERS)
+        
+        for attempt in range(retry_count):
+            try:
+                # 添加随机延迟，模拟真实用户行为
+                delay = random.uniform(0.8, 1.5)
+                time.sleep(delay)
+                
+                response = self.session.get(
+                    url, 
+                    params=params, 
+                    cookies=self.cookies,
+                    headers=headers,
+                    **kwargs
+                )
+                
+                # 如果是 412 错误，等待更长时间后重试
+                if response.status_code == 412:
+                    wait_time = (attempt + 1) * 2  # 递增等待时间
+                    print(f"遇到反爬限制，等待 {wait_time} 秒后重试...")
+                    time.sleep(wait_time)
+                    continue
+                    
+                response.raise_for_status()
+                return response.json()
+                
+            except requests.RequestException as e:
+                if attempt < retry_count - 1:
+                    print(f"请求失败，重试中 ({attempt + 1}/{retry_count})...")
+                    time.sleep(1)
+                else:
+                    print(f"获取评论失败: {e}")
+                    return {'code': -1, 'message': str(e)}
+        
+        return {'code': -1, 'message': '请求失败，已达到最大重试次数'}
+
+
     def get_mid(self) -> str:
         '''
         获取user的MID

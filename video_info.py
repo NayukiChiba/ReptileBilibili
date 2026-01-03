@@ -122,7 +122,8 @@ class VideoInfo(BiliCrawler):
         Returns:
             list: 评论列表
         """
-        # 如果只有bv号就要先获取av号
+        # 如果只有bvid需要先获取aid
+        original_bvid = bvid
         if bvid and not aid:
             video_info = self.get_video_info(bvid=bvid)
             if video_info:
@@ -138,7 +139,8 @@ class VideoInfo(BiliCrawler):
             'pn': 1,
         }
 
-        resp = self._request(BiliAPI.REPLY_MAIN, params=params)
+        # 使用专门的评论请求方法，带重试和反爬处理
+        resp = self._request_reply(BiliAPI.REPLY_MAIN, params=params, bvid=original_bvid)
 
         if resp.get('code') != 0:
             print(f"获取评论失败: {resp.get('message')}")
@@ -163,7 +165,7 @@ class VideoInfo(BiliCrawler):
         return comments
     
     def get_full_video_details(self, bvid:str=None, aid:str=None,
-                               include_commets:bool=True, comment_count:int=10) -> Optional[dict]:
+                               include_comments:bool=True, comment_count:int=10) -> Optional[dict]:
         """
         获取视频完整详情（包含基本信息、标签、评论）
         Args:
@@ -184,7 +186,7 @@ class VideoInfo(BiliCrawler):
         video_info['tags'] = tags
 
         # 获取热门评论
-        if include_commets:
+        if include_comments:
             comments = self.get_video_comments(
                 aid = video_info['aid'],
                 sort=1,
