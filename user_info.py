@@ -28,7 +28,7 @@ class UserInfo(BiliCrawler):
         resp = self._request(BiliAPI.NAV_INFO)
 
         if resp.get('code') != 0 or not resp.get('data', {}).get('isLogin'):
-            print("未登录或获取信息失败")
+            print('未登录或获取信息失败')
             return None
         
         return resp['data']
@@ -45,14 +45,14 @@ class UserInfo(BiliCrawler):
         if mid is None:
             mid = self.get_mid()
             if not mid:
-                print("未登录")
+                print('未登录')
                 return None
         
         params = {'mid': mid}
         resp = self._request_wbi(BiliAPI.USER_INFO, params=params)
 
         if resp.get('code') != 0:
-            print(f"获取用户信息失败: {resp.get('message')}")
+            print(f'获取用户信息失败: {resp.get('message')}')
             return None
     
         data = resp['data']
@@ -97,7 +97,7 @@ class UserInfo(BiliCrawler):
         resp = self._request(BiliAPI.USER_STAT, params=params)
 
         if resp.get('code') != 0:
-            print(f"获取用户统计失败: {resp.get('message')}")
+            print(f'获取用户统计失败: {resp.get('message')}')
             return None
         
         data = resp['data']
@@ -181,7 +181,7 @@ class UserInfo(BiliCrawler):
         with open(self.data_file, 'w', encoding='utf-8') as f:
             json.dump(user_info, f, ensure_ascii=False, indent=2)
         
-        print(f"用户信息已保存到: {self.data_file}")
+        print(f'用户信息已保存到: {self.data_file}')
         return True
     
     def print_user_info(self, user_info: dict = None):
@@ -196,38 +196,38 @@ class UserInfo(BiliCrawler):
         if not user_info:
             return
         
-        print("\n" + "=" * 50)
-        print("用户基本信息")
-        print("=" * 50)
-        print(f"昵称: {user_info.get('name')}")
-        print(f"UID: {user_info.get('mid')}")
-        print(f"性别: {user_info.get('sex')}")
-        print(f"等级: LV{user_info.get('level')}")
-        print(f"签名: {user_info.get('sign', '')[:50]}...")
+        print('\n' + '=' * 50)
+        print('用户基本信息')
+        print('=' * 50)
+        print(f'昵称: {user_info.get('name')}')
+        print(f'UID: {user_info.get('mid')}')
+        print(f'性别: {user_info.get('sex')}')
+        print(f'等级: LV{user_info.get('level')}')
+        print(f'签名: {user_info.get('sign', '')[:50]}...')
 
         if user_info.get('vip', {}).get('status'):
-            print(f"会员: {user_info['vip'].get('label', '大会员')}")
+            print(f'会员: {user_info['vip'].get('label', '大会员')}')
         
         if user_info.get('official', {}).get('title'):
-            print(f"认证:{user_info['official']['title']}")
+            print(f'认证:{user_info['official']['title']}')
 
         if user_info.get('stat'):
-            print("\n" + '-' * 30)
-            print("关系统计: \n")
-            print(f"    关注: {format_number(user_info['stat'].get('following', 0))}")
-            print(f"    粉丝: {format_number(user_info['stat'].get('follower', 0))}")
+            print('\n' + '-' * 30)
+            print('关系统计: \n')
+            print(f'    关注: {format_number(user_info['stat'].get('following', 0))}')
+            print(f'    粉丝: {format_number(user_info['stat'].get('follower', 0))}')
 
         if user_info.get('up_stat'):
-            print("\n" + "-" * 30)
-            print("  UP主统计:")
-            print(f"    播放量: {format_number(user_info['up_stat'].get('archive_view', 0))}")
-            print(f"    阅读量: {format_number(user_info['up_stat'].get('article_view', 0))}")
-            print(f"    获赞数: {format_number(user_info['up_stat'].get('likes', 0))}")
+            print('\n' + '-' * 30)
+            print('  UP主统计:')
+            print(f'    播放量: {format_number(user_info['up_stat'].get('archive_view', 0))}')
+            print(f'    阅读量: {format_number(user_info['up_stat'].get('article_view', 0))}')
+            print(f'    获赞数: {format_number(user_info['up_stat'].get('likes', 0))}')
         
-        print("=" * 50)
+        print('=' * 50)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     user = UserInfo()
 
     # 获取并打印当前登录用户信息

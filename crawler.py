@@ -33,12 +33,11 @@ class BiliCrawler:
     def _request(self, url:str, params: dict=None, method: str='GET', **kwargs)->dict:
         '''
         发送请求并返回json数据
-        :param 
-            url: 请求的url
-            params: 请求的参数
-            method: 请求的方法
-        :return
-            dict: json数据
+        
+        :param url: 请求的url
+        :param params: 请求的参数
+        :param method: 请求的方法
+        :return: json数据
         '''
         try:
             if method.upper() == 'GET':
@@ -52,7 +51,7 @@ class BiliCrawler:
             print(f"请求失败: {e}")
             return {'code': -1, 'message': str(e)}
         except ValueError as e:
-            # JSON 解析失败（空响应或非 JSON 内容）
+            # JSON 解析失败(空响应或非 JSON 内容)
             print(f"请求失败: {e}")
             return {'code': -1, 'message': f'JSON解析失败: {e}'}
         
@@ -65,8 +64,8 @@ class BiliCrawler:
     def _get_wbi_keys(self) -> tuple:
         '''
         获取 WBI 签名需要的img_key和sub_key
-        :return
-             tuple: (img_key, sub_key)
+        
+        :return: (img_key, sub_key)
         '''
         if self._img_key and self._sub_key:
             return self._img_key, self._sub_key
@@ -130,17 +129,16 @@ class BiliCrawler:
     
     def _request_reply(self, url: str, params: dict = None, bvid: str = None, 
                        retry_count: int = 3, **kwargs) -> dict:
-        """
-        发送评论相关请求（带重试和特殊处理）
-        评论API对反爬更敏感，需要特殊处理
-        Args:
-            url: 请求URL
-            params: 请求参数  
-            bvid: 视频BV号（用于设置Referer）
-            retry_count: 重试次数
-        Returns:
-            dict: JSON响应数据
-        """
+        '''
+        发送评论相关请求(带重试和特殊处理)
+        评论API对反爬更敏感,需要特殊处理
+        
+        :param url: 请求URL
+        :param params: 请求参数
+        :param bvid: 视频BV号(用于设置Referer)
+        :param retry_count: 重试次数
+        :return: JSON响应数据
+        '''
         import random
         
         # 设置评论专用的 Referer
@@ -152,7 +150,7 @@ class BiliCrawler:
         
         for attempt in range(retry_count):
             try:
-                # 添加随机延迟，模拟真实用户行为
+                # 添加随机延迟,模拟真实用户行为
                 delay = random.uniform(0.8, 1.5)
                 time.sleep(delay)
                 
@@ -164,10 +162,10 @@ class BiliCrawler:
                     **kwargs
                 )
                 
-                # 如果是 412 错误，等待更长时间后重试
+                # 如果是 412 错误,等待更长时间后重试
                 if response.status_code == 412:
                     wait_time = (attempt + 1) * 2  # 递增等待时间
-                    print(f"遇到反爬限制，等待 {wait_time} 秒后重试...")
+                    print(f"遇到反爬限制,等待 {wait_time} 秒后重试...")
                     time.sleep(wait_time)
                     continue
                     
@@ -175,7 +173,7 @@ class BiliCrawler:
                 return response.json()
             
             except ValueError as e:
-                # JSON 解析失败（空响应或非 JSON 内容）
+                # JSON 解析失败(空响应或非 JSON 内容)
                 if attempt < retry_count - 1:
                     print(f"JSON解析失败, 重试中 ({attempt + 1}/{retry_count})...")
                     time.sleep(1)
@@ -185,13 +183,13 @@ class BiliCrawler:
                 
             except requests.RequestException as e:
                 if attempt < retry_count - 1:
-                    print(f"请求失败，重试中 ({attempt + 1}/{retry_count})...")
+                    print(f"请求失败,重试中 ({attempt + 1}/{retry_count})...")
                     time.sleep(1)
                 else:
                     print(f"获取评论失败: {e}")
                     return {'code': -1, 'message': str(e)}
         
-        return {'code': -1, 'message': '请求失败，已达到最大重试次数'}
+        return {'code': -1, 'message': '请求失败,已达到最大重试次数'}
 
 
     def get_mid(self) -> str:

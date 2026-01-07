@@ -19,12 +19,9 @@ class VideoInfo(BiliCrawler):
         '''
         获取视频的详细信息
         
-        :param 
-            bvid: str: 视频的BV号
-        :param 
-            aid: int: 视频的AV号
-        :return: 
-            dict | None: 视频信息
+        :param bvid: 视频的BV号
+        :param aid: 视频的AV号
+        :return: 视频信息
         '''
         # 设置参数有bv号或者av号
         params = {}
@@ -33,7 +30,7 @@ class VideoInfo(BiliCrawler):
         elif aid:
             params['aid'] = aid
         else:
-            print("请提供bvid或者aid")
+            print('请提供bvid或者aid')
             return None
 
         resp = self._request(BiliAPI.VIDEO_INFO, params=params)
@@ -41,7 +38,7 @@ class VideoInfo(BiliCrawler):
         # 如果resp返回的code不是0, 请求就是失败的
         if resp.get('code') != 0:
             # 输出错误信息
-            print(f"获取视频信息失败: {resp.get('message')}")
+            print(f'获取视频信息失败: {resp.get('message')}')
             return None
         
         # 获取数据
@@ -77,14 +74,13 @@ class VideoInfo(BiliCrawler):
         return video_info
     
     def get_video_tags(self, bvid:str=None, aid:int=None) -> list:
-        """
+        '''
         获取视频标签
-        Args:
-            bvid: 视频BV号
-            aid: 视频AV号
-        Returns:
-            list: 标签列表
-        """
+        
+        :param bvid: 视频BV号
+        :param aid: 视频AV号
+        :return: 标签列表
+        '''
         params = {}
         # 如果有bv号就用bv号
         # 没有bv号就用av号
@@ -112,16 +108,15 @@ class VideoInfo(BiliCrawler):
         return tags
     
     def get_video_comments(self, bvid:str=None, aid:int=None, sort:int=1, count:int=10) -> list:
-        """
+        '''
         获取视频热门评论
-        Args:
-            bvid: 视频BV号
-            aid: 视频AV号
-            sort: 排序方式 0=时间 1=点赞数(热度) 2=回复数
-            count: 获取数量
-        Returns:
-            list: 评论列表
-        """
+        
+        :param bvid: 视频BV号
+        :param aid: 视频AV号
+        :param sort: 排序方式 0=时间 1=点赞数(热度) 2=回复数
+        :param count: 获取数量
+        :return: 评论列表
+        '''
         # 如果只有bvid需要先获取aid
         original_bvid = bvid
         if bvid and not aid:
@@ -139,11 +134,11 @@ class VideoInfo(BiliCrawler):
             'pn': 1,
         }
 
-        # 使用专门的评论请求方法，带重试和反爬处理
+        # 使用专门的评论请求方法,带重试和反爬处理
         resp = self._request_reply(BiliAPI.REPLY_MAIN, params=params, bvid=original_bvid)
 
         if resp.get('code') != 0:
-            print(f"获取评论失败: {resp.get('message')}")
+            print(f'获取评论失败: {resp.get('message')}')
             return []
         
         comments = []
@@ -166,16 +161,15 @@ class VideoInfo(BiliCrawler):
     
     def get_full_video_details(self, bvid:str=None, aid:str=None,
                                include_comments:bool=True, comment_count:int=10) -> Optional[dict]:
-        """
-        获取视频完整详情（包含基本信息、标签、评论）
-        Args:
-            bvid: 视频BV号
-            aid: 视频AV号
-            include_comments: 是否包含评论
-            comment_count: 评论数量
-        Returns:
-            dict: 完整视频信息
-        """
+        '''
+        获取视频完整详情(包含基本信息、标签、评论)
+        
+        :param bvid: 视频BV号
+        :param aid: 视频AV号
+        :param include_comments: 是否包含评论
+        :param comment_count: 评论数量
+        :return: 完整视频信息
+        '''
         # 获取基本信息
         video_info = self.get_video_info(bvid=bvid, aid=aid)
         if not video_info:
@@ -202,11 +196,11 @@ if __name__ == '__main__':
     # 测试获取视频信息
     info = video.get_full_video_details(bvid='BV1mnvxBqEvj')
     if info:
-        print(f"标题: {info['title']}")
-        print(f"时长: {info['duration_str']}")
-        print(f"播放: {info['stat']['view']}")
-        print(f"点赞: {info['stat']['like']}")
-        print(f"投币: {info['stat']['coin']}")
-        print(f"收藏: {info['stat']['favorite']}")
-        print(f"标签: {[t['tag_name'] for t in info['tags']]}")
-        print(f"评论数: {len(info.get('top_comments', []))}")
+        print(f'标题: {info['title']}')
+        print(f'时长: {info['duration_str']}')
+        print(f'播放: {info['stat']['view']}')
+        print(f'点赞: {info['stat']['like']}')
+        print(f'投币: {info['stat']['coin']}')
+        print(f'收藏: {info['stat']['favorite']}')
+        print(f'标签: {[t['tag_name'] for t in info['tags']]}')
+        print(f'评论数: {len(info.get('top_comments', []))}')

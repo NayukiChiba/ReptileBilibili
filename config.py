@@ -31,7 +31,7 @@ HEADERS = {
     'Sec-Fetch-Site': 'same-site',
 }
 
-# 评论 API 专用请求头（额外添加的）
+# 评论 API 专用请求头(额外添加的)
 REPLY_HEADERS = {
     'Referer': 'https://www.bilibili.com/video/',
 }
@@ -84,8 +84,8 @@ class BiliAPI:
 def load_cookies():
     '''
     从文件中加载COOKIE
-    returns: 
-        dict: Cookie字典, 如果文件不存在就返回空字典
+    
+    :return: Cookie字典, 如果文件不存在就返回空字典
     '''
 
     if os.path.exists(COOKIE_FILE):
@@ -97,8 +97,8 @@ def load_cookies():
 def save_cookies(cookies: dict):
     '''
     获取到了cookies, 把他保存在COOKIE_FILE
-    args:
-        dict: 获取到的cookie字典
+    
+    :param cookies: 获取到的cookie字典
     '''
     with open(COOKIE_FILE, 'w', encoding='utf-8') as f:
         json.dump(cookies, f, ensure_ascii=False, indent=2)
@@ -107,8 +107,8 @@ def save_cookies(cookies: dict):
 def get_mid():
     '''
     从COOKIE中获取用户的MID
-    returns:
-        str: 用户的MID, 不存在就返回None
+    
+    :return: 用户的MID, 不存在就返回None
     '''
     cookies = load_cookies()
     return cookies.get('DedeUserID')

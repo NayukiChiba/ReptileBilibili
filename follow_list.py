@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 B站爬虫 - 关注UP主模块
 获取关注列表及UP主的视频信息
-"""
+'''
 
 import os
 import time
@@ -15,7 +15,7 @@ from video_info import VideoInfo
 
 
 class FollowList(BiliCrawler):
-    """关注列表爬取类"""
+    '''关注列表爬取类'''
     
     def __init__(self):
         super().__init__()
@@ -29,15 +29,14 @@ class FollowList(BiliCrawler):
     
     def get_follow_list(self, mid: int = None, page: int = 1, 
                         page_size: int = 50) -> Optional[dict]:
-        """
+        '''
         获取关注列表(单页)
-        Args:
-            mid: 用户UID
-            page: 页码
-            page_size: 每页数量(最大50)
-        Returns:
-            dict: 关注列表数据
-        """
+        
+        :param mid: 用户UID
+        :param page: 页码
+        :param page_size: 每页数量(最奇50)
+        :return: 关注列表数据
+        '''
         if mid is None:
             mid = self.get_mid()
         
@@ -52,27 +51,26 @@ class FollowList(BiliCrawler):
         resp = self._request(BiliAPI.FOLLOW, params=params)
         
         if resp.get('code') != 0:
-            print(f"获取关注列表失败: {resp.get('message')}")
+            print(f'获取关注列表失败: {resp.get('message')}')
             return None
         
         return resp['data']
     
     def get_all_follows(self, mid: int = None, max_count: int = None) -> List[dict]:
-        """
+        '''
         获取所有关注的UP主
-        Args:
-            mid: 用户UID
-            max_count: 最大获取数量
-        Returns:
-            list: 关注列表
-        """
+        
+        :param mid: 用户UID
+        :param max_count: 最大获取数量
+        :return: 关注列表
+        '''
         if mid is None:
             mid = self.get_mid()
         
         follows = []
         page = 1
         
-        print("正在获取关注列表...")
+        print('正在获取关注列表...')
         
         while True:
             data = self.get_follow_list(mid=mid, page=page)
@@ -104,20 +102,19 @@ class FollowList(BiliCrawler):
             page += 1
             time.sleep(0.5)
         
-        print(f"共获取 {len(follows)} 个关注的UP主")
+        print(f'共获取 {len(follows)} 个关注的UP主')
         return follows
     
     def get_up_videos(self, mid: int, order: str = 'pubdate', 
                       count: int = 10) -> List[dict]:
-        """
+        '''
         获取UP主的视频列表
-        Args:
-            mid: UP主UID
-            order: 排序方式 pubdate=最新 click=播放量
-            count: 获取数量
-        Returns:
-            list: 视频列表
-        """
+        
+        :param mid: UP主UID
+        :param order: 排序方式 pubdate=最新 click=播放量
+        :param count: 获取数量
+        :return: 视频列表
+        '''
         params = {
             'mid': mid,
             'order': order,
@@ -128,7 +125,7 @@ class FollowList(BiliCrawler):
         resp = self._request_wbi(BiliAPI.SPACE_VIDEO, params=params)
         
         if resp.get('code') != 0:
-            print(f"获取UP主视频失败: {resp.get('message')}")
+            print(f'获取UP主视频失败: {resp.get('message')}')
             return []
         
         videos = []
@@ -140,7 +137,7 @@ class FollowList(BiliCrawler):
                 'aid': v.get('aid'),
                 'title': v.get('title'),
                 'description': v.get('description', ''),
-                'length': v.get('length'),  # 格式如 "12:34"
+                'length': v.get('length'),  # 格式如 '12:34'
                 'play': v.get('play', 0),
                 'created': v.get('created'),
                 'pic': v.get('pic'),
@@ -150,15 +147,14 @@ class FollowList(BiliCrawler):
     
     def get_up_videos_with_detail(self, mid: int, count: int = 10, 
                                    include_comments: bool = True) -> List[dict]:
-        """
+        '''
         获取UP主视频的详细信息
-        Args:
-            mid: UP主UID
-            count: 获取数量
-            include_comments: 是否包含评论
-        Returns:
-            list: 视频详情列表
-        """
+        
+        :param mid: UP主UID
+        :param count: 获取数量
+        :param include_comments: 是否包含评论
+        :return: 视频详情列表
+        '''
         videos = self.get_up_videos(mid=mid, order='pubdate', count=count)
         details = []
         
@@ -176,20 +172,19 @@ class FollowList(BiliCrawler):
     
     def get_all_up_info(self, recent_count: int = 10, popular_count: int = 10, 
                         include_detail: bool = True) -> List[dict]:
-        """
+        '''
         获取所有关注UP主的信息及其视频
-        Args:
-            recent_count: 每个UP主最近视频数量
-            popular_count: 每个UP主热门视频数量
-            include_detail: 是否获取视频详情
-        Returns:
-            list: UP主信息及视频列表
-        """
+        
+        :param recent_count: 每个UP主最近视频数量
+        :param popular_count: 每个UP主热门视频数量
+        :param include_detail: 是否获取视频详情
+        :return: UP主信息及视频列表
+        '''
         follows = self.get_all_follows()
         result = []
         
         for i, up in enumerate(follows):
-            print(f"\n[{i+1}/{len(follows)}] 获取UP主视频: {up['uname']}")
+            print(f'\n[{i+1}/{len(follows)}] 获取UP主视频: {up['uname']}')
             
             # 获取最新视频
             recent_videos = self.get_up_videos(mid=up['mid'], order='pubdate', count=recent_count)
@@ -240,13 +235,12 @@ class FollowList(BiliCrawler):
         return result
     
     def save_follow_list(self, follows: List[dict] = None) -> bool:
-        """
+        '''
         保存关注列表到CSV
-        Args:
-            follows: 关注列表
-        Returns:
-            bool: 是否成功
-        """
+        
+        :param follows: 关注列表
+        :return: 是否成功
+        '''
         if follows is None:
             follows = self.get_all_follows()
         
@@ -269,20 +263,19 @@ class FollowList(BiliCrawler):
             ]
             write2csv(self.follow_file, row)
         
-        print(f"✓ 关注列表已保存到: {self.follow_file}")
+        print(f'✓ 关注列表已保存到: {self.follow_file}')
         return True
     
     def save_up_videos(self, up_info: dict) -> bool:
-        """
+        '''
         保存单个UP主的视频信息到CSV
-        Args:
-            up_info: UP主信息 (包含视频列表 )
-        Returns:
-            bool: 是否成功
-        """
+        
+        :param up_info: UP主信息 (包含视频列表 )
+        :return: 是否成功
+        '''
         uname = up_info['uname']
         # 清理文件名中的非法字符
-        safe_name = "".join(c for c in uname if c.isalnum() or c in (' ', '_', '-')).strip()
+        safe_name = ''.join(c for c in uname if c.isalnum() or c in (' ', '_', '-')).strip()
         
         # 保存最新视频
         recent_file = os.path.join(self.up_video_dir, f'{safe_name}_最新视频.csv')
@@ -329,21 +322,20 @@ class FollowList(BiliCrawler):
             ]
             write2csv(popular_file, row)
         
-        print(f"  ✓ {uname} 的视频已保存")
+        print(f'  ✓ {uname} 的视频已保存')
         return True
     
     def save_all_up_videos(self, up_list: List[dict] = None, 
                             recent_count: int = 10, 
                             popular_count: int = 10) -> bool:
-        """
+        '''
         保存所有UP主的视频信息
-        Args:
-            up_list: UP主列表 (包含视频 )
-            recent_count: 最新视频数量
-            popular_count: 热门视频数量
-        Returns:
-            bool: 是否成功
-        """
+        
+        :param up_list: UP主列表 (包含视频 )
+        :param recent_count: 最新视频数量
+        :param popular_count: 热门视频数量
+        :return: 是否成功
+        '''
         if up_list is None:
             up_list = self.get_all_up_info(
                 recent_count=recent_count, 
@@ -361,7 +353,7 @@ class FollowList(BiliCrawler):
         for up in up_list:
             self.save_up_videos(up)
         
-        print(f"\n✓ 所有UP主视频已保存到: {self.up_video_dir}")
+        print(f'\n✓ 所有UP主视频已保存到: {self.up_video_dir}')
         return True
 
 

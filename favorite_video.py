@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 B站爬虫 - 收藏夹模块
 获取所有收藏的视频
-"""
+'''
 
 import os
 import time
@@ -15,7 +15,7 @@ from video_info import VideoInfo
 
 
 class FavoriteVideo(BiliCrawler):
-    """收藏视频爬取类"""
+    '''收藏视频爬取类'''
     
     def __init__(self):
         super().__init__()
@@ -28,13 +28,12 @@ class FavoriteVideo(BiliCrawler):
             os.makedirs(self.folder_dir)
     
     def get_favorite_folders(self, mid: int = None) -> List[dict]:
-        """
+        '''
         获取用户的收藏夹列表
-        Args:
-            mid: 用户UID
-        Returns:
-            list: 收藏夹列表
-        """
+        
+        :param mid: 用户UID
+        :return: 收藏夹列表
+        '''
         if mid is None:
             mid = self.get_mid()
         
@@ -45,7 +44,7 @@ class FavoriteVideo(BiliCrawler):
         resp = self._request(BiliAPI.FAVORITE_LIST, params=params)
         
         if resp.get('code') != 0:
-            print(f"获取收藏夹列表失败: {resp.get('message')}")
+            print(f'获取收藏夹列表失败: {resp.get('message')}')
             return []
         
         folders = []
@@ -61,15 +60,14 @@ class FavoriteVideo(BiliCrawler):
     
     def get_folder_content(self, folder_id: int, page: int = 1, 
                            page_size: int = 20) -> Optional[dict]:
-        """
+        '''
         获取收藏夹内容(单页)
-        Args:
-            folder_id: 收藏夹ID
-            page: 页码
-            page_size: 每页数量
-        Returns:
-            dict: 收藏夹内容
-        """
+        
+        :param folder_id: 收藏夹ID
+        :param page: 页码
+        :param page_size: 每页数量
+        :return: 收藏夹内容
+        '''
         params = {
             'media_id': folder_id,
             'pn': page,
@@ -80,19 +78,18 @@ class FavoriteVideo(BiliCrawler):
         resp = self._request(BiliAPI.FAVORITE_RESOURCE, params=params)
         
         if resp.get('code') != 0:
-            print(f"获取收藏夹内容失败: {resp.get('message')}")
+            print(f'获取收藏夹内容失败: {resp.get('message')}')
             return None
         
         return resp['data']
     
     def get_all_folder_videos(self, folder_id: int) -> List[dict]:
-        """
+        '''
         获取收藏夹中所有视频
-        Args:
-            folder_id: 收藏夹ID
-        Returns:
-            list: 视频列表
-        """
+        
+        :param folder_id: 收藏夹ID
+        :return: 视频列表
+        '''
         videos = []
         page = 1
         
@@ -135,21 +132,20 @@ class FavoriteVideo(BiliCrawler):
         return videos
     
     def get_all_favorites(self, include_detail: bool = False) -> dict:
-        """
+        '''
         获取所有收藏夹的所有视频
-        Args:
-            include_detail: 是否获取视频详情
-        Returns:
-            dict: {folder_title: [videos]}
-        """
+        
+        :param include_detail: 是否获取视频详情
+        :return: {folder_title: [videos]}
+        '''
         folders = self.get_favorite_folders()
         all_favorites = {}
         
-        print("正在获取收藏夹内容...")
+        print('正在获取收藏夹内容...')
         
         for folder in folders:
             folder_title = folder['title']
-            print(f"\n正在获取收藏夹: {folder_title} ({folder['media_count']}个视频)")
+            print(f'\n正在获取收藏夹: {folder_title} ({folder['media_count']}个视频)')
             
             videos = self.get_all_folder_videos(folder['id'])
             
@@ -157,7 +153,7 @@ class FavoriteVideo(BiliCrawler):
             if include_detail:
                 detailed_videos = []
                 for i, v in enumerate(videos):
-                    print(f"  [{i+1}/{len(videos)}] {v['title'][:30]}...")
+                    print(f'  [{i+1}/{len(videos)}] {v['title'][:30]}...')
                     
                     detail = self.video_info.get_full_video_detail(
                         bvid=v['bvid'],
@@ -178,20 +174,19 @@ class FavoriteVideo(BiliCrawler):
                 videos = detailed_videos
             
             all_favorites[folder_title] = videos
-            print(f"  完成，共 {len(videos)} 个视频")
+            print(f'  完成,共 {len(videos)} 个视频')
         
         return all_favorites
     
     def save_all_favorites(self, favorites: dict = None, 
                            include_detail: bool = False) -> bool:
-        """
+        '''
         保存所有收藏到文件
-        Args:
-            favorites: 收藏数据
-            include_detail: 是否包含详情
-        Returns:
-            bool: 是否成功
-        """
+        
+        :param favorites: 收藏数据
+        :param include_detail: 是否包含详情
+        :return: 是否成功
+        '''
         if favorites is None:
             favorites = self.get_all_favorites(include_detail=include_detail)
         
@@ -244,7 +239,7 @@ class FavoriteVideo(BiliCrawler):
                 total_count += 1
             
             # 同时保存到单独的文件夹文件
-            safe_name = "".join(c for c in folder_name if c.isalnum() or c in (' ', '_', '-')).strip()
+            safe_name = ''.join(c for c in folder_name if c.isalnum() or c in (' ', '_', '-')).strip()
             folder_file = os.path.join(self.folder_dir, f'{safe_name}.csv')
             
             if os.path.exists(folder_file):
@@ -280,9 +275,9 @@ class FavoriteVideo(BiliCrawler):
                 
                 write2csv(folder_file, row)
         
-        print(f"\n✓ 共 {total_count} 个收藏视频已保存")
-        print(f"  汇总文件: {self.data_file}")
-        print(f"  分类文件: {self.folder_dir}")
+        print(f'\n✓ 共 {total_count} 个收藏视频已保存')
+        print(f'  汇总文件: {self.data_file}')
+        print(f'  分类文件: {self.folder_dir}')
         return True
 
 
@@ -291,12 +286,12 @@ if __name__ == '__main__':
     
     # 获取所有收藏夹列表
     folders = fav.get_favorite_folders()
-    print(f"共 {len(folders)} 个收藏夹:")
+    print(f'共 {len(folders)} 个收藏夹:')
     for f in folders:
-        print(f"  - {f['title']}: {f['media_count']}个视频")
+        print(f'  - {f['title']}: {f['media_count']}个视频')
     
-    # 获取并保存所有收藏（不包含详情，速度较快）
+    # 获取并保存所有收藏(不包含详情,速度较快)
     # fav.save_all_favorites(include_detail=False)
     
-    # 获取并保存所有收藏（包含详情）
+    # 获取并保存所有收藏(包含详情)
     # fav.save_all_favorites(include_detail=True)

@@ -24,24 +24,23 @@ class HistoryVideo(BiliCrawler):
         self.data_file = os.path.join(DATA_DIR, 'history_videos.csv')
 
     def get_week_start_timestamp(self) -> int:
-        """
+        '''
         获取一周前的时间戳
-        Returns:
-            int: 时间戳
-        """
+        
+        :return: 时间戳
+        '''
         week_age = datetime.now() - timedelta(days=7)
         return int(week_age.timestamp())
     
     def get_history(self, max_ts:int=0, view_at:int=0, business:str='') -> Optional[dict]:
-        """
+        '''
         获取观看历史(单页)
-        Args:
-            max_ts: 最大时间戳(用于翻页)
-            view_at: 观看时间(用于翻页)
-            business: 业务类型
-        Returns:
-            dict: 历史记录数据
-        """
+        
+        :param max_ts: 最大时间戳(用于翻页)
+        :param view_at: 观看时间(用于翻页)
+        :param business: 业务类型
+        :return: 历史记录数据
+        '''
         params = {
             'max': max_ts,
             'view_at': view_at,
@@ -52,19 +51,18 @@ class HistoryVideo(BiliCrawler):
         resp = self._request(BiliAPI.HISTORY, params=params)
 
         if resp.get('code') != 0:
-            print(f"获取历史记录失败: {resp.get('message')}")
+            print(f'获取历史记录失败: {resp.get('message')}')
             return None
     
         return resp['data']
     
     def iter_history(self, start_ts:int=None) -> Generator[dict, None, None]:
-        """
+        '''
         迭代获取历史记录
-        Args:
-            start_ts: 起始时间戳(只获取在此时间之后的记录)
-        Yields:
-            dict: 单条历史记录
-        """
+        
+        :param start_ts: 起始时间戳(只获取在此时间之后的记录)
+        :yields: 单条历史记录
+        '''
         max_ts = 0
         view_at = 0
 
@@ -103,26 +101,25 @@ class HistoryVideo(BiliCrawler):
     
     def get_week_history(self, include_detail: bool = False, 
                           include_comments: bool = False) -> list:
-        """
+        '''
         获取过去一周的观看历史
-        Args:
-            include_detail: 是否获取视频详情(时长、点赞等)
-            include_comments: 是否获取评论(评论API限制较严，建议单独获取)
-        Returns:
-            list: 历史记录列表
-        """
+        
+        :param include_detail: 是否获取视频详情(时长、点赞等)
+        :param include_comments: 是否获取评论(评访API限制较严,建议单独获取)
+        :return: 历史记录列表
+        '''
         import random
         
         week_start = self.get_week_start_timestamp()
         history_list = []
         
-        print(f"正在获取过去一周的观看历史...")
-        print(f"起始时间: {timestamp_to_datetime(week_start)}")
+        print(f'正在获取过去一周的观看历史...')
+        print(f'起始时间: {timestamp_to_datetime(week_start)}')
         if include_detail:
             if include_comments:
-                print("⚠️ 将获取评论，可能会因反爬限制而变慢...")
+                print('⚠️ 将获取评论,可能会因反爬限制而变慢...')
             else:
-                print("📝 不获取评论（可设置 include_comments=True 开启）")
+                print('📝 不获取评论(可设置 include_comments=True 开启)')
         
         for item in self.iter_history(start_ts=week_start):
             history = item.get('history', {})
@@ -153,29 +150,28 @@ class HistoryVideo(BiliCrawler):
                     if include_comments:
                         record['top_comments'] = detail.get('top_comments', [])
                 
-                # 避免请求过快，使用随机延迟
-                # 如果包含评论，延迟更长
+                # 避免请求过快,使用随机延迟
+                # 如果包含评论,延迟更长
                 if include_comments:
                     time.sleep(random.uniform(2.0, 3.5))
                 else:
                     time.sleep(random.uniform(0.3, 0.8))
             
             history_list.append(record)
-            print(f"  已获取: {record['title'][:30]}...")
+            print(f'  已获取: {record['title'][:30]}...')
         
-        print(f"\n共获取 {len(history_list)} 条观看记录")
+        print(f'\n共获取 {len(history_list)} 条观看记录')
         return history_list
     
 
     def save_history(self, history_list: list = None, include_detail: bool = False) -> bool:
-        """
+        '''
         保存观看历史到CSV
-        Args:
-            history_list: 历史记录列表
-            include_detail: 是否包含详情
-        Returns:
-            bool: 是否成功
-        """
+        
+        :param history_list: 历史记录列表
+        :param include_detail: 是否包含详情
+        :return: 是否成功
+        '''
         if history_list is None:
             history_list = self.get_week_history(include_detail=include_detail)
         
@@ -227,15 +223,15 @@ class HistoryVideo(BiliCrawler):
             
             write2csv(self.data_file, row)
         
-        print(f"✓ 观看历史已保存到: {self.data_file}")
+        print(f'✓ 观看历史已保存到: {self.data_file}')
         return True
     
 
 if __name__ == '__main__':
     history = HistoryVideo()
     
-    # 获取并保存过去一周的观看历史（包含详情）
+    # 获取并保存过去一周的观看历史(包含详情)
     # include_comments=False 避免触发评论API的反爬限制
-    # 如需获取评论，设置 include_comments=True（速度会变慢）
+    # 如需获取评论,设置 include_comments=True(速度会变慢)
     records = history.get_week_history(include_detail=True, include_comments=False)
     history.save_history(records, include_detail=True)

@@ -17,24 +17,23 @@ def format_number(num: int) -> str:
 
 
 def timestamp_to_datetime(timestamp:int) -> str:
-    """
+    '''
     时间戳转换为日期时间字符串
-    Args:
-        timestamp: Unix时间戳
-    Returns:
-        str: 格式化的日期时间字符串
-    """
+    
+    :param timestamp: Unix时间戳
+    :return: 格式化的日期时间字符串
+    '''
     from datetime import datetime
     return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
 
 def write_head(file: str, heads: list):
-    """
+    '''
     写入CSV文件表头(如果文件不存在)
-    Args:
-        file: CSV文件路径
-        heads: 表头列表
-    """
+    
+    :param file: CSV文件路径
+    :param heads: 表头列表
+    '''
     # 确保目录存在
     dir_path = os.path.dirname(file)
     if dir_path and not os.path.exists(dir_path):
@@ -50,12 +49,12 @@ def write_head(file: str, heads: list):
 
 
 def write2csv(file: str, row: list):
-    """
+    '''
     向CSV文件追加一行数据
-    Args:
-        file: CSV文件路径
-        row: 要写入的行数据
-    """
+    
+    :param file: CSV文件路径
+    :param row: 要写入的行数据
+    '''
     # 确保目录存在
     dir_path = os.path.dirname(file)
     if dir_path and not os.path.exists(dir_path):
