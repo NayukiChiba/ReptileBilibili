@@ -10,7 +10,7 @@
 | ⚠️    | **本项目为爬虫项目，所以爬虫过程会有一定的风险，如果涉及侵权等问题，请立刻联系我** |
 | ⚠    | **本项目中出现的账号cookie，MID等，均通过了号主本人的同意**  |
 ## 通知
-该项目已废弃，但是我成功重构了这个项目: https://github.com/NayukiChiba/ReptileBilibili.git，欢迎star
+该项目已废弃，但是我成功重构了这个项目: https://github.com/NayukiChiba/ReptileBilibili.git
 
 ## 介绍
 
