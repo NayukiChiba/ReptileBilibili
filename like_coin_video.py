@@ -96,26 +96,28 @@ class LikeCoinVideo(BiliCrawler):
         print(f'共获取 {len(videos)} 个点赞视频')
         return videos
     
-    def get_coined_videos(self, page: int = 1, page_size: int = 20) -> Optional[dict]:
+    def get_coined_videos(self, mid: int = None) -> Optional[list]:
         '''
-        获取投币视频列表(单页)
+        获取投币视频列表
+        注意：此API返回最近投币的视频，每次最多返回全部（不分页）
         
-        :param page: 页码
-        :param page_size: 每页数量
-        :return: 投币视频数据
+        :param mid: 用户UID
+        :return: 投币视频数据列表
         '''
+        if mid is None:
+            mid = self.get_mid()
+        
         params = {
-            'pn': page,
-            'ps': min(page_size, 20),
+            'vmid': mid,
         }
         
         resp = self._request(BiliAPI.COIN_VIDEO, params=params)
         
         if resp.get('code') != 0:
-            print(f'获取投币视频失败: {resp.get('message')}')
+            print(f'获取投币视频失败: {resp.get("message")}')
             return None
         
-        return resp['data']
+        return resp.get('data', [])
     
     def get_all_coined_videos(self, max_count: int = 100) -> List[dict]:
         '''
@@ -124,40 +126,30 @@ class LikeCoinVideo(BiliCrawler):
         :param max_count: 最大获取数量
         :return: 投币视频列表
         '''
-        videos = []
-        page = 1
-        
         print(f'正在获取投币视频列表(最多{max_count}个)...')
         
-        while len(videos) < max_count:
-            data = self.get_coined_videos(page=page)
-            if not data or not data.get('list'):
-                break
-            
-            for item in data['list']:
-                videos.append({
-                    'bvid': item.get('bvid'),
-                    'aid': item.get('aid'),
-                    'title': item.get('title'),
-                    'pic': item.get('pic'),
-                    'owner': {
-                        'mid': item.get('owner', {}).get('mid'),
-                        'name': item.get('owner', {}).get('name'),
-                    },
-                    'stat': {
-                        'view': item.get('stat', {}).get('view', 0),
-                    },
-                    'duration': item.get('duration', 0),
-                    'coin_count': item.get('coin_count', 0),  # 投币数量
-                    'ts': item.get('ts', 0),  # 投币时间
-                    'ts_str': timestamp_to_datetime(item.get('ts', 0)) if item.get('ts') else '',
-                })
-                
-                if len(videos) >= max_count:
-                    break
-            
-            page += 1
-            time.sleep(0.5)
+        data = self.get_coined_videos()
+        if not data:
+            print('共获取 0 个投币视频')
+            return []
+        
+        videos = []
+        for item in data[:max_count]:
+            videos.append({
+                'bvid': item.get('bvid'),
+                'aid': item.get('aid'),
+                'title': item.get('title'),
+                'pic': item.get('pic'),
+                'owner': {
+                    'mid': item.get('owner', {}).get('mid'),
+                    'name': item.get('owner', {}).get('name'),
+                },
+                'stat': {
+                    'view': item.get('cnt_info', {}).get('play', 0),
+                },
+                'duration': item.get('duration', 0),
+                'coins': item.get('coins', 0),  # 投币数量
+            })
         
         print(f'共获取 {len(videos)} 个投币视频')
         return videos
@@ -176,7 +168,7 @@ class LikeCoinVideo(BiliCrawler):
         for i, v in enumerate(videos):
             print(f'  [{i+1}/{len(videos)}] 获取详情: {v['title'][:30]}...')
             
-            detail = self.video_info.get_full_video_detail(
+            detail = self.video_info.get_full_video_details(
                 bvid=v['bvid'],
                 include_comments=include_comments,
                 comment_count=10
@@ -283,10 +275,10 @@ class LikeCoinVideo(BiliCrawler):
             os.remove(self.coin_file)
         
         if include_detail:
-            heads = ['标题', 'BV号', 'UP主', '投币数', '投币时间', '时长', 
+            heads = ['标题', 'BV号', 'UP主', '投币数', '时长', 
                      '播放', '点赞', '投币总数', '收藏', '标签']
         else:
-            heads = ['标题', 'BV号', 'UP主', '投币数', '投币时间', '时长', '播放']
+            heads = ['标题', 'BV号', 'UP主', '投币数', '时长', '播放']
         
         write_head(self.coin_file, heads)
         
@@ -300,8 +292,7 @@ class LikeCoinVideo(BiliCrawler):
                     v.get('title', ''),
                     v.get('bvid', ''),
                     v.get('owner', {}).get('name', ''),
-                    v.get('coin_count', ''),
-                    v.get('ts_str', ''),
+                    v.get('coins', ''),
                     duration_str,
                     stat.get('view', ''),
                     stat.get('like', ''),
@@ -314,8 +305,7 @@ class LikeCoinVideo(BiliCrawler):
                     v.get('title', ''),
                     v.get('bvid', ''),
                     v.get('owner', {}).get('name', ''),
-                    v.get('coin_count', ''),
-                    v.get('ts_str', ''),
+                    v.get('coins', ''),
                     duration_str,
                     v.get('stat', {}).get('view', ''),
                 ]
