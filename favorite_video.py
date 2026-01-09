@@ -155,7 +155,7 @@ class FavoriteVideo(BiliCrawler):
                 for i, v in enumerate(videos):
                     print(f'  [{i+1}/{len(videos)}] {v['title'][:30]}...')
                     
-                    detail = self.video_info.get_full_video_detail(
+                    detail = self.video_info.get_full_video_details(
                         bvid=v['bvid'],
                         include_comments=True,
                         comment_count=10
