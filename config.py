@@ -77,7 +77,7 @@ class BiliAPI:
     
     # 点赞/投币记录相关
     LIKE_VIDEO = 'https://api.bilibili.com/x/space/like/video'  # 点赞视频列表(仅最近)
-    COIN_VIDEO = 'https://member.bilibili.com/x/web/coin/video'  # 投币视频列表
+    COIN_VIDEO = 'https://api.bilibili.com/x/space/coin/video'  # 投币视频列表
 
 
 # 获取COOKIES
