@@ -159,7 +159,7 @@ class FollowList(BiliCrawler):
         details = []
         
         for v in videos:
-            detail = self.video_info.get_full_video_detail(
+            detail = self.video_info.get_full_video_details(
                 bvid=v['bvid'],
                 include_comments=include_comments,
                 comment_count=10
@@ -196,7 +196,7 @@ class FollowList(BiliCrawler):
             if include_detail:
                 recent_details = []
                 for v in recent_videos:
-                    detail = self.video_info.get_full_video_detail(
+                    detail = self.video_info.get_full_video_details(
                         bvid=v['bvid'],
                         include_comments=True,
                         comment_count=10
@@ -210,7 +210,7 @@ class FollowList(BiliCrawler):
                     # 避免重复获取
                     if any(d['bvid'] == v['bvid'] for d in recent_details):
                         continue
-                    detail = self.video_info.get_full_video_detail(
+                    detail = self.video_info.get_full_video_details(
                         bvid=v['bvid'],
                         include_comments=True,
                         comment_count=10
