@@ -25,11 +25,30 @@ class BiliLogin:
         :returns: str: 二维码的url
         '''
         response = self.session.get(BiliAPI.QR_GENERATE)
+        
+        # 检查HTTP状态码
+        if response.status_code != 200:
+            print(f'HTTP请求失败, 状态码: {response.status_code}')
+            print(f'响应内容: {response.text[:500]}')
+            raise Exception(f'HTTP请求失败: {response.status_code}')
+        
+        # 检查响应内容是否为空
+        if not response.text or not response.text.strip():
+            print(f'服务器返回空响应')
+            print(f'响应头: {dict(response.headers)}')
+            raise Exception('服务器返回空响应')
+        
         # 获取数据的json形式
-        data = response.json()
+        try:
+            data = response.json()
+        except Exception as e:
+            print(f'JSON解析失败: {e}')
+            print(f'响应状态码: {response.status_code}')
+            print(f'响应内容前500字符: {response.text[:500]}')
+            raise
 
         if data['code'] != 0:
-            raise Exception(f'获取二维码失败: {data['message']}')
+            raise Exception(f"获取二维码失败: {data['message']}")
         
         self.qrcode_key = data['data']['qrcode_key']
         qr_url = data['data']['url']
